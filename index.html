@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FF00FF">
+  <meta name="description" content="AKILI ISLAND OS - Neural Core Operating System">
+  <title>AKILI ISLAND OS</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f9e0.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Space Grotesk', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            akili: {
+              pink: '#FF00FF',
+              'pink-light': '#FFB6FF',
+              'pink-dark': '#8A2BE2',
+              rose: '#FF1493',
+            }
+          },
+          animation: {
+            'drift': 'drift 20s ease-in-out infinite alternate',
+            'breathe': 'breathe 4s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s ease-in-out infinite',
+            'float': 'float 6s ease-in-out infinite',
+            'rotate-slow': 'rotate 20s linear infinite',
+            'pop': 'pop 0.8s ease-out forwards',
+          },
+          keyframes: {
+            drift: {
+              '0%': { transform: 'scale(1) translate(0, 0)' },
+              '100%': { transform: 'scale(1.15) translate(2%, 2%)' },
+            },
+            breathe: {
+              '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 30px #FF00FF, 0 0 80px #FF00FF, 0 0 120px rgba(255,0,255,0.5)' },
+              '50%': { transform: 'scale(1.08)', boxShadow: '0 0 40px #FF00FF, 0 0 100px #FF00FF, 0 0 160px rgba(255,0,255,0.7)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0) translateX(0)' },
+              '25%': { transform: 'translateY(-10px) translateX(5px)' },
+              '75%': { transform: 'translateY(10px) translateX(-5px)' },
+            },
+            rotate: {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' },
+            },
+            pop: {
+              '0%': { transform: 'scale(0) rotate(-180deg)', opacity: '0' },
+              '50%': { transform: 'scale(1.15) rotate(-10deg)', opacity: '1' },
+              '100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; width: 100%; overflow: hidden; background: #000000; font-family: 'Space Grotesk', system-ui, sans-serif; }
+    
+    .nebula-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background: 
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(255,0,255,0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 80% at 80% 70%, rgba(255,20,147,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 70% at 50% 50%, rgba(138,43,226,0.1) 0%, transparent 70%),
+        radial-gradient(ellipse 100% 100% at 0% 100%, rgba(255,0,255,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 100% 100% at 100% 0%, rgba(138,43,226,0.08) 0%, transparent 60%);
+      animation: drift 20s ease-in-out infinite alternate;
+    }
+    
+    .nebula-bg::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: 
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4) 50%, transparent),
+        radial-gradient(1px 1px at 30% 40%, rgba(255,0,255,0.3) 50%, transparent),
+        radial-gradient(1px 1px at 50% 60%, rgba(255,20,147,0.3) 50%, transparent),
+        radial-gradient(1px 1px at 70% 80%, rgba(138,43,226,0.3) 50%, transparent),
+        radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.4) 50%, transparent),
+        radial-gradient(1px 1px at 20% 80%, rgba(255,0,255,0.3) 50%, transparent),
+        radial-gradient(1px 1px at 60% 30%, rgba(255,20,147,0.3) 50%, transparent),
+        radial-gradient(1px 1px at 80% 50%, rgba(138,43,226,0.3) 50%, transparent);
+      background-size: 200px 200px;
+      animation: starfield 60s linear infinite;
+      opacity: 0.6;
+    }
+    
+    @keyframes starfield {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-200px, -200px); }
+    }
+    
+    .particle {
+      position: absolute; width: 4px; height: 4px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #FFB6FF, #FF00FF);
+      box-shadow: 0 0 8px #FF00FF, 0 0 16px rgba(255,0,255,0.5);
+      pointer-events: none;
+    }
+    
+    .reactor-core {
+      position: relative;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(ellipse at center, #FFB6FF 0%, #FF00FF 30%, #8A2BE2 70%, #000 100%);
+      box-shadow: 
+        0 0 30px #FF00FF,
+        0 0 80px #FF00FF,
+        0 0 120px rgba(255,0,255,0.5),
+        inset 0 0 30px rgba(255,182,255,0.5),
+        inset 0 0 60px rgba(255,0,255,0.3);
+      animation: breathe 4s ease-in-out infinite;
+    }
+    
+    .reactor-core::before {
+      content: ''; position: absolute; inset: -8px; border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent 0%, #FF00FF 20%, transparent 40%, #FF1493 60%, transparent 80%, #8A2BE2 100%);
+      animation: rotate 8s linear infinite;
+      filter: blur(12px);
+      opacity: 0.6;
+      z-index: -1;
+    }
+    
+    .reactor-core::after {
+      content: ''; position: absolute; inset: 12px; border-radius: 50%;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%);
+      pointer-events: none;
+    }
+    
+    .silhouette {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: radial-gradient(ellipse at center, transparent 0%, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 70%);
+      clip-path: ellipse(35% 45% at 50% 55%);
+      opacity: 0.5;
+      animation: float 8s ease-in-out infinite;
+    }
+    
+    .dashboard-ring {
+      position: relative; width: 420px; height: 420px;
+      animation: rotate-slow;
+      animation-direction: reverse;
+    }
+    
+    .dashboard-card {
+      position: absolute; top: 50%; left: 50%;
+      transform-origin: center center;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 16px;
+      padding: 10px 12px;
+      min-width: 110px;
+      text-align: center;
+      animation: pop 0.8s ease-out forwards;
+      opacity: 0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .dashboard-card:hover {
+      transform: scale(1.1) translate(-50%, -50%) !important;
+      box-shadow: 0 0 30px rgba(255,0,255,0.4), 0 0 60px rgba(255,0,255,0.2);
+      border-color: rgba(255,0,255,0.5);
+      z-index: 10;
+    }
+    
+    .dashboard-card .label {
+      font-size: 9px; font-weight: 600; letter-spacing: 0.15em;
+      text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 2px;
+    }
+    
+    .dashboard-card .value {
+      font-size: 13px; font-weight: 700; color: #fff;
+      font-variant-numeric: tabular-nums;
+    }
+    
+    .dashboard-card .value.pink { color: #FFB6FF; }
+    
+    .chat-pill {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .chat-pill:focus-within {
+      border-color: rgba(255,0,255,0.6);
+      box-shadow: 0 0 30px rgba(255,0,255,0.2);
+    }
+    
+    .mic-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #FF00FF, #8A2BE2);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .mic-btn:hover { transform: scale(1.15); box-shadow: 0 0 20px rgba(255,0,255,0.6); }
+    .mic-btn:active { transform: scale(0.95); }
+    
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #FF00FF;
+      box-shadow: 0 0 8px #FF00FF, 0 0 16px rgba(255,0,255,0.5);
+      animation: pulse-slow;
+    }
+    
+    @media (max-width: 640px) {
+      .reactor-core { width: 140px; height: 140px; }
+      .dashboard-ring { width: 320px; height: 320px; }
+      .dashboard-card { min-width: 90px; padding: 8px 10px; }
+      .dashboard-card .value { font-size: 11px; }
+      .title-main { font-size: 28px !important; }
+      .title-sub { font-size: 8px !important; }
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="relative h-screen w-screen flex flex-col">
+  <!-- Nebula Background -->
+  <div class="nebula-bg" aria-hidden="true"></div>
+  
+  <!-- Floating Particles -->
+  <div id="particles" class="fixed inset-0 pointer-events-none z-10" aria-hidden="true"></div>
+  
+  <!-- Top Title -->
+  <header class="relative z-20 flex flex-col items-center pt-8 px-4">
+    <h1 class="title-main font-bold text-white tracking-[0.3em] text-[42px] leading-tight">AKILI ISLAND</h1>
+    <p class="title-sub font-medium text-pink-300 tracking-[0.4em] text-[10px] mt-2 uppercase">OPERATING SYSTEM — NEURAL CORE ACTIVE</p>
+  </header>
+  
+  <!-- Center Reactor + Dashboard -->
+  <main class="relative z-20 flex-1 flex flex-col items-center justify-center px-4">
+    <div class="relative flex flex-col items-center">
+      <!-- Dashboard Ring -->
+      <div class="dashboard-ring mb-4" id="dashboardRing" aria-hidden="true"></div>
+      
+      <!-- Reactor Core -->
+      <div class="relative flex-shrink-0">
+        <div class="reactor-core" id="reactorCore" aria-label="Neural core reactor">
+          <div class="silhouette" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Bottom Chat Pill -->
+  <footer class="relative z-20 flex items-center justify-center pb-8 px-4">
+    <div class="chat-pill rounded-full px-6 py-4 flex items-center gap-3 min-w-[280px] max-w-[90vw]">
+      <div class="pulse-dot flex-shrink-0" aria-hidden="true"></div>
+      <input 
+        type="text" 
+        placeholder="Ask Akili..." 
+        class="bg-transparent border-none outline-none text-white/80 placeholder-white/40 text-xs tracking-widest flex-1 px-2"
+        aria-label="Ask Akili"
+        spellcheck="false"
+      >
+      <button class="mic-btn" aria-label="Voice input" title="Voice input">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+        </svg>
+      </button>
+    </div>
+  </footer>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('SW registered:', reg.scope))
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+    
+    // Generate 50 floating particles
+    const particlesContainer = document.getElementById('particles');
+    const colors = ['#FFB6FF', '#FF00FF', '#FF1493', '#8A2BE2', '#FFFFFF'];
+    
+    for (let i = 0; i < 50; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      const size = Math.random() * 3 + 2;
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.top = `${Math.random() * 100}%`;
+      particle.style.background = `radial-gradient(circle at 30% 30%, ${colors[Math.floor(Math.random() * colors.length)]}, ${colors[Math.floor(Math.random() * colors.length)]})`;
+      particle.style.animation = `float ${6 + Math.random() * 4}s ease-in-out infinite`;
+      particle.style.animationDelay = `${Math.random() * 5}s`;
+      particle.style.opacity = 0.3 + Math.random() * 0.5;
+      particlesContainer.appendChild(particle);
+    }
+    
+    // Create 6 dashboard cards positioned at 60 degree intervals
+    const dashboardRing = document.getElementById('dashboardRing');
+    const cards = [
+      { label: 'MAIL', value: '3 NEW', pink: false, angle: -90 },
+      { label: 'M-PESA', value: 'KES 1,240', pink: true, angle: -30 },
+      { label: 'MEMORY', value: '94% FREE', pink: false, angle: 30 },
+      { label: 'NAIROBI', value: '22°C POA', pink: false, angle: 90 },
+      { label: 'NEWS', value: '7 UNREAD', pink: false, angle: 150 },
+      { label: 'SYSTEM', value: 'BUILD 1 LIVE', pink: true, angle: 210 },
+    ];
+    
+    const radius = 210; // half of 420px
+    
+    cards.forEach((card, index) => {
+      const el = document.createElement('div');
+      el.className = 'dashboard-card';
+      el.style.animationDelay = `${index * 0.12}s`;
+      
+      const rad = (card.angle * Math.PI) / 180;
+      const x = Math.cos(rad) * radius;
+      const y = Math.sin(rad) * radius;
+      
+      // Position card center at the calculated position
+      el.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+      
+      el.innerHTML = `
+        <div class="label">${card.label}</div>
+        <div class="value ${card.pink ? 'pink' : ''}">${card.value}</div>
+      `;
+      
+      dashboardRing.appendChild(el);
+    });
+    
+    // Mic button interaction
+    const micBtn = document.querySelector('.mic-btn');
+    const input = document.querySelector('input[placeholder="Ask Akili..."]');
+    
+    micBtn.addEventListener('click', () => {
+      micBtn.style.transform = 'scale(0.9)';
+      setTimeout(() => micBtn.style.transform = '', 150);
+      
+      // Visual feedback
+      const originalBg = micBtn.style.background;
+      micBtn.style.background = 'linear-gradient(135deg, #00FF88, #00CC66)';
+      setTimeout(() => micBtn.style.background = originalBg, 1000);
+      
+      input.focus();
+      input.placeholder = 'Listening...';
+      setTimeout(() => input.placeholder = 'Ask Akili...', 2000);
+    });
+    
+    // Input focus effects
+    input.addEventListener('focus', () => {
+      input.parentElement.style.borderColor = 'rgba(255,0,255,0.6)';
+      input.parentElement.style.boxShadow = '0 0 30px rgba(255,0,255,0.2)';
+    });
+    
+    input.addEventListener('blur', () => {
+      input.parentElement.style.borderColor = 'rgba(255,255,255,0.2)';
+      input.parentElement.style.boxShadow = 'none';
+    });
+    
+    // Subtle parallax on mouse move
+    document.addEventListener('mousemove', (e) => {
+      const { clientX, clientY } = e;
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const deltaX = (clientX - centerX) / centerX;
+      const deltaY = (clientY - centerY) / centerY;
+      
+      const reactor = document.getElementById('reactorCore');
+      const ring = document.getElementById('dashboardRing');
+      const particles = document.querySelectorAll('.particle');
+      
+      if (reactor) {
+        reactor.style.transform = `translate(${deltaX * 8}px, ${deltaY * 8}px)`;
+      }
+      if (ring) {
+        ring.style.transform = `translate(${deltaX * -4}px, ${deltaY * -4}px)`;
+      }
+      particles.forEach((p, i) => {
+        const factor = (i % 3 + 1) * 0.5;
+        const currentTransform = p.style.transform || '';
+        const baseTransform = currentTransform.replace(/translate\([^)]*\)/, '');
+        p.style.transform = `${baseTransform} translate(${deltaX * 15 * factor}px, ${deltaY * 15 * factor}px)`;
+      });
+    });
+  </script>
+</body>
+</html>
